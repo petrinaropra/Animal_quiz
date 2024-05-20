@@ -6,8 +6,8 @@ let score = 0;
 let attempt = 0;
 let still_guessing = true;
 
-//an array is created and it holds three objects
-//those objects the quiz questions
+//array that holds the question, answer and the image of the animal
+//all three are placed in an object
 let questions = [
     { 
         question: "Which bear lives at the North Pole?", 
@@ -37,43 +37,43 @@ let questions = [
 ];
 
 //this variable holds the current question number
+//which will be used as an index for each object in the questions array
 let currentQuestion = 0;
 
-//this line makes displays the vurrent question in the question div 
+//this line makes displays the current question in the question div 
 document.getElementById('question').innerText = questions[currentQuestion].question;
 
-//a function calles submit answer is created
+//a function for when the user presses the submit button
 function submitAnswer() {
-	//the userAnswer variable gets the answer of the user from the input
+    //the value of the userAnswer variable will show in the input box
     let userAnswer = document.getElementById('answer').value;
-	//if still_guessing is still true and number of attempts is less than three
+    //if still_guessing is still true and number of attempts is less than three
     if (still_guessing && attempt < 3) {
-		//if the value of userAnswer is equal to the answer of the currentQuestion  
+	//if the text in the input box is equal to the value of the answer kwy in the questions array
+	//you can do console.log(questions[currentQuestion].answer.toLowerCase()) and see the answer
         if (userAnswer.toLowerCase() === questions[currentQuestion].answer.toLowerCase()) {
-			//Show this message in the feedback div
+	    //Show this message in the feedback div
             document.getElementById('feedback').innerText = 'Correct Answer!';
-			//add 1 to the value of score
+	    //add 1 to the value of score
             score++;
-			//display the score in the score div
+	    //display the score in the score div
             document.getElementById('score').innerHTML = 'Score: ' + score;
             // Show popup for correct answer with a button to proceed
             showPopup('You\'re correct! Click to continue.');
 			
-		//if the user's answer is incorrect 
+	//if the user's answer is incorrect 
         } else {
-			//if the value of attempt is less than 2
+	    //if the value of attempt is less than 2
             if (attempt < 2) {
-				//display this message on the feeback div
+		//display this message on the feeback div
                 document.getElementById('feedback').innerText = 'Sorry wrong answer. Try again.';
-				//add one to the value of attempt
+		//add one to the value of attempt
                 attempt++;
-				console.log(attempt)
-			//if the value of attempt is no longer less than 2
+		console.log(attempt)
+	    //if the value of attempt is no longer less than 2
             } else {
-				//display this message in the feedback div
+		//display this message in the feedback div
                 showPopup(`Sorry, the correct answer is ${questions[currentQuestion].answer}.`);
-				//document.getElementById('button').disabled = true;
-
             }
         }
     }
@@ -81,54 +81,49 @@ function submitAnswer() {
 
 // Add event listener to the input field to detect Enter key press
 document.getElementById('answer').addEventListener('keyup', function(event) {
+    //if the user presses the enter key
     if (event.key === 'Enter') {
-        submitAnswer(document.getElementById('answer').value);
+	//call submitAnswer function
+        submitAnswer();
     }
 });
 
 // Function to update question and image
 function updateQuestionAndImage() {
-	//if the value of currentQuestion is less than the number of objects in questions
+    //if the value of currentQuestion is less than the number of objects in questions
     if (currentQuestion < questions.length) {
-		//display a question
+	//display a question
         document.getElementById('question').innerText = questions[currentQuestion].question;
-		//display an image
+	//display an image
         document.getElementById('questionImg').src = questions[currentQuestion].image; // Set image source
-		//the value of the answer div will now be ''
+	//the inpuy box will now be empty
         document.getElementById('answer').value = '';
-		//the value of the feedback div will now be ''
+	//the value of the feedback div will now be ''
+	//basically it removes the feedback message
         document.getElementById('feedback').innerText = '';
-	//if the value of currentQuestion is not less than the number of objects in paradise
-    } else {
-		//display this 
-        document.getElementById('quiz').innerHTML = `<h1>Quiz Completed</h1>Your score is ${score}/${questions.length}`;
-    }
 }
 
 // Display the first question and image when the page loads
+//so call the updateQuestionANd Image() function
 updateQuestionAndImage();
 
 //create nextQuestion() function
 function nextQuestion() {
-	//since attempt is not global it's given a value again
+    //set the value of attempt back to zero so that the game will continue
     attempt = 0;
-	//add one to the value of currentQuestion
+    //add one to the value of currentQuestion
     currentQuestion++;
-	//if the value of currentQuestion is less than the number of objects in questions array
+    //if the value of currentQuestion is less than the number of objects in questions array
+    //basically if there are still questions
     if (currentQuestion < questions.length) {
-		//display a question
-        document.getElementById('question').innerText = questions[currentQuestion].question;
-		//set the value of answer div to ''
-        document.getElementById('answer').value = '';
-		//set the value of feeback div to ''
-        document.getElementById('feedback').innerText = '';
-	//if the value of currentQuestion is not less than the number of objects in questions array	
-    } else {
-		//display this 
-        document.getElementById('quiz').innerHTML = `<h1>Quiz Completed</h1>Your score is ${score}/${questions.length}`;
-    }
 	//call updateQuestionAndImage function
 	updateQuestionAndImage();
+    //basically if the game reaches the final question
+    } else {
+	//display this 
+        document.getElementById('quiz').innerHTML = `<h1>Quiz Completed</h1>Your score is ${score}/${questions.length}`;
+    }
+	
 }
 
 function showPopup(message) {
