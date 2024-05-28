@@ -1,162 +1,259 @@
-// quiz.js
-
-//three variables are created
-//one holds the score, another holds the number of user attempts and the last one checks if the user is still guessing
+// Three variables are created
 let score = 0;
 let attempt = 0;
 let still_guessing = true;
 
-//array that holds the question, answer and the image of the animal
-//all three are placed in an object
+// An array holding the quiz questions
 let questions = [
     { 
         question: "Which bear lives at the North Pole?", 
         answer: "polar bear",
-        image: "C:/Users/petix/Downloads/polar_bear.jpg"
+        image: 'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/polar_bear.jpg'
     },
     { 
         question: "What is the fastest mammal?", 
         answer: "cheetah",
-        image: "C:/Users/petix/Downloads/cheetah.jpg"
+        image: 'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/cheetah.jpg'
     },
     { 
         question: "What is the largest animal in the world?", 
         answer: "blue whale",
-        image: "C:/Users/petix/Downloads/blue_whale.jpg"
+        image: 'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/blue_whale.jpg'
     },
-	{
-		question: "What is the tallest land animal in the world?", 
+    {
+        question: "What is the tallest land animal in the world?", 
         answer: "giraffe",
-        image: "C:/Users/petix/Downloads/giraffe.jpg"
-	},
-	{
+        image: 'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/giraffe.jpg'
+    },
+    {
         question: "What is the only mammal that can fly?", 
         answer: "bat",
-        image: "C:/Users/petix/Downloads/bat.jpg"
-	}
+        image: 'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/bat.jpg'
+    }
 ];
 
-//this variable holds the current question number
-//which will be used as an index for each object in the questions array
+// This variable holds the current question number
 let currentQuestion = 0;
 
-//this line makes displays the current question in the question div 
-document.getElementById('question').innerText = questions[currentQuestion].question;
+// Preload question images
+let preloadedImages = {};
 
-//a function for when the user presses the submit button
+//create a function that preloads the images
+function preloadImages(imageUrls) {
+	//The forEach() method calls a function for each element in an array.
+	//so basically it Iterates over each URL in the imageUrls array
+    imageUrls.forEach(url => {
+		// Create a new Image object (an HTML <img> element)
+		let img = new Image();
+    
+		// Set the src attribute of the Image object to the current URL, starting the image loading process
+		img.src = url;
+    
+		// Store the Image object in the preloadedImages object using the URL as the key
+		preloadedImages[url] = img;
+    
+		// Log a message to the console indicating that the image is being preloaded
+		console.log(`Preloading image: ${url}`);
+    });
+}
+
+// A flag to track whether the popup is currently shown
+let isPopupActive = false;
+
+// Function to update question and image
+function updateQuestionAndImage() {
+	//if the value of current question is less than the number of objects in questions
+    if (currentQuestion < questions.length) {
+		//in the question div in the HTML file display the current question
+        document.getElementById('question').innerText = questions[currentQuestion].question;
+		//create a variable called questionImg that stores the img HTML element
+        let questionImg = document.getElementById('questionImg');
+		//create a variable called imageUrl that stores the image of the current question
+        let imageUrl = questions[currentQuestion].image;
+
+        // Check if the image is in the preloadedImages object
+		if (preloadedImages[imageUrl]) {
+			// Check if the preloaded image has fully loaded
+			if (preloadedImages[imageUrl].complete) {
+				// If the image is fully loaded, set the src of questionImg to display it
+				questionImg.src = imageUrl;
+			} else {
+				// If the image is not fully loaded, set an onload handler
+				preloadedImages[imageUrl].onload = () => {
+				// When the image finishes loading, set the src of questionImg to display it
+				questionImg.src = imageUrl;
+				};
+			}
+		// If the image is not in the preloadedImages object, log an error
+	} else {
+		console.error(`Image not preloaded: ${imageUrl}`);
+	}
+
+	//make the input box display nothing
+    document.getElementById('answer').value = '';
+	//remove the text in the 'feedback' div
+    document.getElementById('feedback').innerText = '';
+	
+	//for the last two images in the questions array
+	//set their width to 80% and height to auto
+	//this is for personal preference meaning it's not mandatory
+    if (currentQuestion >= questions.length - 2) {
+        questionImg.style.width = '80%';
+        questionImg.style.height = 'auto';
+        }
+    }
+}
+
+// A function called submitAnswer is created
 function submitAnswer() {
-    //the value of the userAnswer variable will show in the input box
+	//create a variable called userAnswer that stores the text the user enters 
+	//in the input box ('answer') in the html file
     let userAnswer = document.getElementById('answer').value;
-    //if still_guessing is still true and number of attempts is less than three
+	//if still_guessing is still true and the value of attempt is less than 3
     if (still_guessing && attempt < 3) {
-	//if the text in the input box is equal to the value of the answer kwy in the questions array
-	//you can do console.log(questions[currentQuestion].answer.toLowerCase()) and see the answer
+		//if the user's answer is equal to the currentQuestion's answer
         if (userAnswer.toLowerCase() === questions[currentQuestion].answer.toLowerCase()) {
-	    //Show this message in the feedback div
+            console.log(questions[currentQuestion].answer.toLowerCase());
+			//display this text in the 'feedback' div
             document.getElementById('feedback').innerText = 'Correct Answer!';
-	    //add 1 to the value of score
+			//add 1 to the score
             score++;
-	    //display the score in the score div
+			//display this text in the 'score' div
             document.getElementById('score').innerHTML = 'Score: ' + score;
-            // Show popup for correct answer with a button to proceed
-            showPopup('You\'re correct! Click to continue.');
-			
-	//if the user's answer is incorrect 
+			//call showPopup() function with the string 'Correct' as it's argument
+            showPopup('Correct!');
         } else {
-	    //if the value of attempt is less than 2
+			//if attempt is less than 2
             if (attempt < 2) {
-		//display this message on the feeback div
+				//display this text in the 'feedback' div
                 document.getElementById('feedback').innerText = 'Sorry wrong answer. Try again.';
-		//add one to the value of attempt
+				//add 1 to the value of attempt
                 attempt++;
-		console.log(attempt)
-	    //if the value of attempt is no longer less than 2
+                console.log(attempt);
             } else {
-		//display this message in the feedback div
-                showPopup(`Sorry, the correct answer is ${questions[currentQuestion].answer}.`);
+				//call the showPopup function with the text below as it's argument
+                showPopup(`The correct answer was ${questions[currentQuestion].answer.toUpperCase()}.`, true);
             }
         }
     }
 }
 
+// Create nextQuestion() function
+function nextQuestion() {
+	//set the value of attempt back to zero
+    attempt = 0;
+	//add 1 to the value of currentQuestion
+    currentQuestion++;
+	//if the value of currentQuestion is less than the amount of objects in questions
+    if (currentQuestion < questions.length) {
+		//call the updateQuestionAndImage() function
+        updateQuestionAndImage();
+    } else {
+		//display the text below in the 'quiz' div
+        document.getElementById('quiz').innerHTML = `<h1>Quiz Completed</h1>Your score is ${score}/${questions.length}`;
+    }
+}
+
+// Create a function called showPopup with two parameters 
+function showPopup(message, isWrongAnswer = false) {
+	//set the value of isPopupActive to true
+    isPopupActive = true;
+	
+	//create a div element and store it in the variable popup
+    let popup = document.createElement('div');
+	//set the class name of the popup div to 'popup'
+    popup.className = 'popup';
+	//the text in the 'popup' is set as the value of message
+    popup.textContent = message;
+
+	//create a variable called imageSrc that stores the value of isWrongAnswer
+    let imageSrc = isWrongAnswer
+		//if isWrongAnswer is true, use the thumbs down image
+        ? 'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/thumbs_down.jpg'
+        //if isWrongAnswer is false, use the thumbs up image
+		: 'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/thumbs_up.jpg';
+	
+	//set the popup backgroundImage to whichever image
+	//that satisfy the condition above
+    popup.style.backgroundImage = `url(${imageSrc})`;
+
+	
+    // Check if the image is in the preloadedImages object
+	if (preloadedImages[imageSrc]) {
+		// Check if the preloaded image has fully loaded
+		if (preloadedImages[imageSrc].complete) {
+			// If the image is fully loaded, display the popup immediately
+			displayPopup(popup);
+		} else {
+			// If the image is not fully loaded, set an onload handler
+			preloadedImages[imageSrc].onload = () => displayPopup(popup);
+	}
+	// If the image is not in the preloadedImages object, log an error
+	} else {
+		console.error(`Image not preloaded: ${imageSrc}`);
+		// Display the popup anyway
+		displayPopup(popup);
+	}
+}
+
+//create a displayPopup function that takes the one parameter 'popup'
+function displayPopup(popup) {
+	//add 'popup' to the HTML file
+    document.body.appendChild(popup);
+	//set a timer
+    setTimeout(() => {
+		//if the HTML body has the 'popup' div element
+        if (document.body.contains(popup)) {
+			//remove the 'popup' div element
+            document.body.removeChild(popup);
+			//call the nextQuestion() function
+            nextQuestion();
+        }
+		//set the value of isPopupActive to false
+        isPopupActive = false;
+	//this is the amount of time the popup will be displayed
+    }, 1175);
+}
+
+// Add event listener to disable keyboard input when popup is active
+document.addEventListener('keydown', function(event) {
+    if (isPopupActive) {
+        event.preventDefault();
+    }
+});
+
 // Add event listener to the input field to detect Enter key press
 document.getElementById('answer').addEventListener('keyup', function(event) {
-    //if the user presses the enter key
-    if (event.key === 'Enter') {
-	//call submitAnswer function
+    if (event.key === 'Enter' && !isPopupActive) {
         submitAnswer();
     }
 });
 
-// Function to update question and image
-function updateQuestionAndImage() {
-    //if the value of currentQuestion is less than the number of objects in questions
-    if (currentQuestion < questions.length) {
-	//display a question
-        document.getElementById('question').innerText = questions[currentQuestion].question;
-	//display an image
-        document.getElementById('questionImg').src = questions[currentQuestion].image; // Set image source
-	//the inpuy box will now be empty
-        document.getElementById('answer').value = '';
-	//the value of the feedback div will now be ''
-	//basically it removes the feedback message
-        document.getElementById('feedback').innerText = '';
-}
-
-// Display the first question and image when the page loads
-//so call the updateQuestionANd Image() function
-updateQuestionAndImage();
-
-//create nextQuestion() function
-function nextQuestion() {
-    //set the value of attempt back to zero so that the game will continue
-    attempt = 0;
-    //add one to the value of currentQuestion
-    currentQuestion++;
-    //if the value of currentQuestion is less than the number of objects in questions array
-    //basically if there are still questions
-    if (currentQuestion < questions.length) {
-	//call updateQuestionAndImage function
-	updateQuestionAndImage();
-    //basically if the game reaches the final question
-    } else {
-	//display this 
-        document.getElementById('quiz').innerHTML = `<h1>Quiz Completed</h1>Your score is ${score}/${questions.length}`;
+// Add event listener to the submit button
+document.getElementById('button').addEventListener('click', function() {
+    if (!isPopupActive) {
+        submitAnswer();
     }
-	
-}
+});
 
-function showPopup(message) {
-	attempt = 0;
-    // Create a variable that takes a div element
-    let popup = document.createElement('div');
-	//give the div a class name - popup
-    popup.className = 'popup'; // Add the class name to the popup
-	//the content on the popup will be the message's value
-    popup.textContent = message;
-	
-	//create a variable that takes a button element
-    let continueButton = document.createElement('button');
-	
-	//put this text on the button
-    continueButton.textContent = 'Next';
-	//once the button is clicked call a function
-    continueButton.onclick = function() {
-		//remove the popup
-        document.body.removeChild(popup);
-		//call the nextQuestion function
-        nextQuestion();
-    };
-	
-	//Add a line break
-    popup.appendChild(document.createElement('br'));
-	
-	//the popup div gets the continueButton button element
-    popup.appendChild(continueButton);
-	//add the popup div element to the html body 
-    document.body.appendChild(popup);
-}
-
-//display this text in the score div
+// Display this text in the score div
 document.getElementById('score').innerText = `Score: ${score}`;
+
+// Initialize quiz and preload question images when the DOM content is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Create an array of image URLs from the questions array
+    let questionImageUrls = questions.map(question => question.image);
+    
+    // Define an array of popup image URLs for feedback images
+    let popupImageUrls = [
+        'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/thumbs_up.jpg',
+        'C:/Users/petix/OneDrive/Desktop/my_javascript_games/animal_quiz/images/thumbs_down.jpg'
+    ];
+    
+    // Preload all question and popup images
+    preloadImages([...questionImageUrls, ...popupImageUrls]);
+    
+    // Initialize the quiz with the first question and its image
+    updateQuestionAndImage();
+});
 
